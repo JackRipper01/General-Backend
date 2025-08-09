@@ -3,6 +3,8 @@ import psycopg2
 import os
 import dotenv
 
+import add_new_task
+
 Env_Var = dotenv.dotenv_values()
 
 DB_NAME = Env_Var['DB_NAME']
@@ -27,8 +29,11 @@ try:
 
     print("\n--- Fetching all tasks: ---")
 
-    cur.execute("SELECT * FROM tasks;")
+    # add_new_task.add_new_task_to_db(
+    #     conn=conn, cur=cur, title="XD", description="NONONO", is_completed=True)
 
+    cur.execute("SELECT * FROM tasks WHERE is_Completed is TRUE;")
+    
     all_tasks = cur.fetchall()
 
     for task in all_tasks:
