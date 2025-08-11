@@ -5,6 +5,12 @@ import dotenv
 
 import add_new_task
 
+
+def add_new_task_to_db(conn, cur, title, description, is_completed):
+    sql_query = "INSERT INTO tasks (title,description,is_completed) VALUES (%s,%s,%s)"
+    cur.execute(sql_query, (title, description, is_completed))
+    conn.commit()
+    
 Env_Var = dotenv.dotenv_values()
 
 DB_NAME = Env_Var['DB_NAME']

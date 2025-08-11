@@ -3,7 +3,7 @@ from fastapi import FastAPI
 import psycopg2
 import dotenv
 from pydantic import BaseModel
-
+from fastapi import HTTPException, status
 
 app = FastAPI()
 
@@ -87,3 +87,31 @@ async def read_tasks():
             conn.close()
 
     return tasks
+
+
+@app.get("/tasks/{task_id}", response_model=Task)
+async def read_single_task(task_id: int):
+    try:
+        conn = get_db_conn()
+        cur = conn.cursor()
+
+        cur.execute(
+            "SELECT id, title, description, is_completed FROM tasks WHERE id = %s", (task_id,))  
+
+        task = cur.fetchone()
+
+        if task is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Task not found.")
+
+    except psycopg2.Error as e:
+        print(f"Database error{e}")
+        raise e
+
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+
+    return Task(id=task[0], title=task[1], description=task[2], is_completed=task[3])
